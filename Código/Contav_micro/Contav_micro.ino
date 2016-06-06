@@ -1,6 +1,13 @@
 #include <arduino.h>
 #include "switchDebounce.h"
 
+#define atuador1fwd  OCR1B
+#define atuador1bwd  OCR1A
+#define atuador2fwd  OCR4D
+#define atuador2bwd  OCR3A
+#define atuador3fwd  OCR4A
+#define atuador3bwd  OCR1C
+
 #define pinLED1 MISO
 #define pinLED2 SCK
 #define pinLED3  A5
@@ -13,27 +20,36 @@
 #define pinInibidor2  8
 #define pinInibidor3  4
 
-#define pinAtuador1up  10
-#define pinAtuador1down  9
-#define pinAtuador2up  6
-#define pinAtuador2down  5
-#define pinAtuador3up  13 
-#define pinAtuador3down  11
+#define pinAtuador1fwd  10
+#define pinAtuador1bwd  9
+#define pinAtuador2fwd  6
+#define pinAtuador2bwd  5
+#define pinAtuador3fwd  13 
+#define pinAtuador3bwd  11
 
 switchDebounce *swdBotaoUp, *swdBotaoDown,  *swdBotaoFuncao;
 switchDebounce *swdInibidor1, *swdInibidor2,  *swdInibidor3;
 
 void setup() {
+  TCCR1A = 0xA9;
+  TCCR3A = 0xA9;
+  TCCR4A = 0x53;
+  
+  TCCR1B = 1;
+  TCCR3B = 1; 
+  TCCR4B = 1;
+  
+  TCCR4C = 0xAB;
    
   pinMode(pinLED1, OUTPUT);
   pinMode(pinLED2, OUTPUT);
   pinMode(pinLED3, OUTPUT);
-  pinMode(pinAtuador1up, OUTPUT);
-  pinMode(pinAtuador1down, OUTPUT);
-  pinMode(pinAtuador2up, OUTPUT);
-  pinMode(pinAtuador2down, OUTPUT);
-  pinMode(pinAtuador3up, OUTPUT);
-  pinMode(pinAtuador3down, OUTPUT);
+  pinMode(pinAtuador1fwd, OUTPUT);
+  pinMode(pinAtuador1bwd, OUTPUT);
+  pinMode(pinAtuador2fwd, OUTPUT);
+  pinMode(pinAtuador2bwd, OUTPUT);
+  pinMode(pinAtuador3fwd, OUTPUT);
+  pinMode(pinAtuador3bwd, OUTPUT);
   
   swdBotaoUp = new switchDebounce(pinBotaoUp);
   swdBotaoDown = new switchDebounce(pinBotaoDown);
@@ -132,59 +148,59 @@ void loop() {
     switch (funcao){
       case 1:
         if((trava1up && velAtuador1[0]) || (trava2up && velAtuador1[1]) || (trava3up && velAtuador1[2])){
-          digitalWrite(pinAtuador1up, LOW);
-          digitalWrite(pinAtuador1down, LOW);
-          digitalWrite(pinAtuador2up, LOW);
-          digitalWrite(pinAtuador2down, LOW);
-          digitalWrite(pinAtuador3up, LOW);
-          digitalWrite(pinAtuador3down, LOW);
+          atuador1fwd = 0;
+          atuador1bwd = 0;
+          atuador2fwd = 0;
+          atuador2bwd = 0;
+          atuador3fwd = 0;
+          atuador3bwd = 0;
           funcao = 0;
           break;
         }
-        analogWrite(pinAtuador1up, velAtuador1[0]);
-        digitalWrite(pinAtuador1down, LOW);
-        analogWrite(pinAtuador2up, velAtuador1[1]);
-        digitalWrite(pinAtuador2down, LOW);
-        analogWrite(pinAtuador3up, velAtuador1[2]);
-        digitalWrite(pinAtuador3down, LOW);
+        atuador1fwd = velAtuador1[0];
+        atuador1bwd = 0;
+        atuador2fwd = velAtuador1[1];
+        atuador2bwd = 0;
+        atuador3fwd = velAtuador1[2];
+        atuador2bwd = 0;
         break;
         
       case 2:
         if((trava1up && velAtuador2[0]) || (trava2up && velAtuador2[1]) || (trava3up && velAtuador2[2])){
-          digitalWrite(pinAtuador1up, LOW);
-          digitalWrite(pinAtuador1down, LOW);
-          digitalWrite(pinAtuador2up, LOW);
-          digitalWrite(pinAtuador2down, LOW);
-          digitalWrite(pinAtuador3up, LOW);
-          digitalWrite(pinAtuador3down, LOW);
+          atuador1fwd = 0;
+          atuador1bwd = 0;
+          atuador2fwd = 0;
+          atuador2bwd = 0;
+          atuador3fwd = 0;
+          atuador3bwd = 0;
           funcao = 0;
           break;
         }
-        analogWrite(pinAtuador1up, velAtuador2[0]);
-        digitalWrite(pinAtuador1down, LOW);
-        analogWrite(pinAtuador2up, velAtuador2[1]);
-        digitalWrite(pinAtuador2down, LOW);
-        analogWrite(pinAtuador3up, velAtuador2[2]);
-        digitalWrite(pinAtuador3down, LOW);
+        atuador1fwd = velAtuador2[0];
+        atuador1bwd = 0;
+        atuador2fwd = velAtuador2[1];
+        atuador2bwd = 0;
+        atuador3fwd = velAtuador2[2];
+        atuador2bwd = 0;
         break;
         
       case 3:
         if((trava1up && velAtuador3[0]) || (trava2up && velAtuador3[1]) || (trava3up && velAtuador3[2])){
-          digitalWrite(pinAtuador1up, LOW);
-          digitalWrite(pinAtuador1down, LOW);
-          digitalWrite(pinAtuador2up, LOW);
-          digitalWrite(pinAtuador2down, LOW);
-          digitalWrite(pinAtuador3up, LOW);
-          digitalWrite(pinAtuador3down, LOW);
+          atuador1fwd = 0;
+          atuador1bwd = 0;
+          atuador2fwd = 0;
+          atuador2bwd = 0;
+          atuador3fwd = 0;
+          atuador3bwd = 0;
           funcao = 0;
           break;
         }
-        analogWrite(pinAtuador1up, velAtuador3[0]);
-        digitalWrite(pinAtuador1down, LOW);
-        analogWrite(pinAtuador2up, velAtuador3[1]);
-        digitalWrite(pinAtuador2down, LOW);
-        analogWrite(pinAtuador3up, velAtuador3[2]);
-        digitalWrite(pinAtuador3down, LOW);
+        atuador1fwd = velAtuador3[0];
+        atuador1bwd = 0;
+        atuador2fwd = velAtuador3[1];
+        atuador2bwd = 0;
+        atuador3fwd = velAtuador3[2];
+        atuador2bwd = 0;
         break;
         
       case 0:
@@ -198,59 +214,59 @@ void loop() {
     switch (funcao){
       case 1:
         if((trava1down && velAtuador1[0]) || (trava2down && velAtuador1[1]) || (trava3down && velAtuador1[2])){
-          digitalWrite(pinAtuador1up, LOW);
-          digitalWrite(pinAtuador1down, LOW);
-          digitalWrite(pinAtuador2up, LOW);
-          digitalWrite(pinAtuador2down, LOW);
-          digitalWrite(pinAtuador3up, LOW);
-          digitalWrite(pinAtuador3down, LOW);
+          atuador1fwd = 0;
+          atuador1bwd = 0;
+          atuador2fwd = 0;
+          atuador2bwd = 0;
+          atuador3fwd = 0;
+          atuador3bwd = 0;
           funcao = 0;
           break;
         }
-        digitalWrite(pinAtuador1up, LOW);
-        analogWrite(pinAtuador1down, velAtuador1[0]);
-        digitalWrite(pinAtuador2up, LOW);
-        analogWrite(pinAtuador2down, velAtuador1[1]);
-        digitalWrite(pinAtuador3up, LOW);
-        analogWrite(pinAtuador3down, velAtuador1[2]);
+        atuador1fwd = 0;
+        atuador1bwd = velAtuador1[0];
+        atuador2fwd = 0;
+        atuador2bwd = velAtuador1[1];
+        atuador3fwd = 0;
+        atuador3bwd = velAtuador1[2];
         break;
         
       case 2:
         if((trava1down && velAtuador2[0]) || (trava2down && velAtuador2[1]) || (trava3down && velAtuador2[2])){
-          digitalWrite(pinAtuador1up, LOW);
-          digitalWrite(pinAtuador1down, LOW);
-          digitalWrite(pinAtuador2up, LOW);
-          digitalWrite(pinAtuador2down, LOW);
-          digitalWrite(pinAtuador3up, LOW);
-          digitalWrite(pinAtuador3down, LOW);
+          atuador1fwd = 0;
+          atuador1bwd = 0;
+          atuador2fwd = 0;
+          atuador2bwd = 0;
+          atuador3fwd = 0;
+          atuador3bwd = 0;
           funcao = 0;
           break;
         }
-        digitalWrite(pinAtuador1up, LOW);
-        analogWrite(pinAtuador1down, velAtuador2[0]);
-        digitalWrite(pinAtuador2up, LOW);
-        analogWrite(pinAtuador2down, velAtuador2[1]);
-        digitalWrite(pinAtuador3up, LOW);
-        analogWrite(pinAtuador3down, velAtuador2[2]);
+        atuador1fwd = 0;
+        atuador1bwd = velAtuador2[0];
+        atuador2fwd = 0;
+        atuador2bwd = velAtuador2[1];
+        atuador3fwd = 0;
+        atuador3bwd = velAtuador2[2];
         break;
         
       case 3:
         if((trava1down && velAtuador3[0]) || (trava2down && velAtuador3[1]) || (trava3down && velAtuador3[2])){
-          digitalWrite(pinAtuador1up, LOW);
-          digitalWrite(pinAtuador1down, LOW);
-          digitalWrite(pinAtuador2up, LOW);
-          digitalWrite(pinAtuador2down, LOW);
-          digitalWrite(pinAtuador3up, LOW);
-          digitalWrite(pinAtuador3down, LOW);
+          atuador1fwd = 0;
+          atuador1bwd = 0;
+          atuador2fwd = 0;
+          atuador2bwd = 0;
+          atuador3fwd = 0;
+          atuador3bwd = 0;
           funcao = 0;
           break;
         }
-        digitalWrite(pinAtuador1up, LOW);
-        analogWrite(pinAtuador1down, velAtuador3[0]);
-        digitalWrite(pinAtuador2up, LOW);
-        analogWrite(pinAtuador2down, velAtuador3[1]);
-        digitalWrite(pinAtuador3up, LOW);
-        analogWrite(pinAtuador3down, velAtuador3[2]);
+        atuador1fwd = 0;
+        atuador1bwd = velAtuador3[0];
+        atuador2fwd = 0;
+        atuador2bwd = velAtuador3[1];
+        atuador3fwd = 0;
+        atuador3bwd = velAtuador3[2];
         break;
         
       case 0:
@@ -260,12 +276,12 @@ void loop() {
   }
  
  if((swdBotaoUp->state && swdBotaoDown->state) || (!swdBotaoUp->state && !swdBotaoDown->state)){
-   digitalWrite(pinAtuador1up, LOW);
-   digitalWrite(pinAtuador1down, LOW);
-   digitalWrite(pinAtuador2up, LOW);
-   digitalWrite(pinAtuador2down, LOW);
-   digitalWrite(pinAtuador3up, LOW);
-   digitalWrite(pinAtuador3down, LOW);
+   atuador1fwd = 0;
+   atuador1bwd = 0;
+   atuador2fwd = 0;
+   atuador2bwd = 0;
+   atuador3fwd = 0;
+   atuador3bwd = 0;
  }
   
 }
