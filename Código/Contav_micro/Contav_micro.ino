@@ -1,21 +1,22 @@
 #include <arduino.h>
 #include "switchDebounce.h"
 
-#define pinLED1 14
-#define pinLED2 16
-#define pinLED3 15
-#define pinBotaoUp A1
+#define pinLED1 MISO
+#define pinLED2 SCK
+#define pinLED3  A5
+
+#define pinBotaoUp A3
 #define pinBotaoDown A2
-#define pinBotaoFuncao A0
+#define pinBotaoFuncao A4
 
 #define pinInibidor1  12
 #define pinInibidor2  8
-#define pinInibidor3  A4
+#define pinInibidor3  4
 
-#define pinAtuador1up  6
-#define pinAtuador1down  5
-#define pinAtuador2up  10
-#define pinAtuador2down  9
+#define pinAtuador1up  10
+#define pinAtuador1down  9
+#define pinAtuador2up  6
+#define pinAtuador2down  5
 #define pinAtuador3up  13 
 #define pinAtuador3down  11
 
@@ -23,7 +24,7 @@ switchDebounce *swdBotaoUp, *swdBotaoDown,  *swdBotaoFuncao;
 switchDebounce *swdInibidor1, *swdInibidor2,  *swdInibidor3;
 
 void setup() {
-  
+   
   pinMode(pinLED1, OUTPUT);
   pinMode(pinLED2, OUTPUT);
   pinMode(pinLED3, OUTPUT);
@@ -54,71 +55,22 @@ int velAtuador1[3] = {127, 0, 0};
 int velAtuador2[3] = {0, 127, 0};
 int velAtuador3[3] = {0, 0, 127};
 
-void inibidores(){ 
-  if(swdBotaoUp->state && !swdInibidor1->state && swdBotaoDown->state && !trava1up && !trava1down){
-    trava1up = HIGH;
-    trava1down = HIGH;
-  }
-  if(!swdBotaoUp->state && !swdInibidor1->state && !trava1down){
-    trava1up = HIGH;
-  }
-  if(!swdBotaoDown->state && !swdInibidor1->state && !trava1up){
-    trava1down = HIGH;
-  }  
-  if(swdInibidor1->state){
-    trava1up = LOW;
-    trava1down = LOW;
-  }
-  
-  if(swdBotaoUp->state && !swdInibidor2->state && swdBotaoDown->state && !trava2up && !trava2down){
-    trava2up = HIGH;
-    trava2down = HIGH;
-  }
-  if(!swdBotaoUp->state && !swdInibidor2->state && !trava2down){
-    trava2up = HIGH;
-  }
-  if(!swdBotaoDown->state && !swdInibidor2->state && !trava2up){
-    trava2down = HIGH;
-  }  
-  if(swdInibidor2->state){
-    trava2up = LOW;
-    trava2down = LOW;
-  }
-  
-  if(swdBotaoUp->state && !swdInibidor3->state && swdBotaoDown->state && !trava3up && !trava3down){
-    trava3up = HIGH;
-    trava3down = HIGH;
-  }
-  if(!swdBotaoUp->state && !swdInibidor3->state && !trava3down){
-    trava3up = HIGH;
-  }
-  if(!swdBotaoDown->state && !swdInibidor3->state && !trava3up){
-    trava3down = HIGH;
-  }  
-  if(swdInibidor3->state){
-    trava3up = LOW;
-    trava3down = LOW;
-  }
-  
-}
-
-
 unsigned long tempoBotao = 0;
 unsigned long tempoBlink = 0;
 boolean ledBlink = false;
 int funcao = 0;
 boolean auto_tilt = false;
-
+char c;
 
 void loop() {
-  Serial.begin(9600);
+  
   swdBotaoFuncao->refresh(pinBotaoFuncao);
   swdBotaoUp->refresh(pinBotaoUp);
   swdBotaoDown->refresh(pinBotaoDown);
   swdInibidor1->refresh(pinInibidor1);
   swdInibidor2->refresh(pinInibidor2);
   swdInibidor3->refresh(pinInibidor3);
-  
+
   if(!swdBotaoFuncao->state){    
     tempoBotao = millis();
     while(!swdBotaoFuncao->state){
@@ -132,7 +84,7 @@ void loop() {
     if(millis()-tempoBotao > 2000) auto_tilt = !auto_tilt;
   }
   
-  if(millis()-tempoBotao > 5000) funcao = 0;
+  if(millis()-tempoBotao > 3000) funcao = 0;
   
   if(!auto_tilt){
     switch (funcao){
@@ -162,7 +114,7 @@ void loop() {
     }
   }
   else{
-    if(millis() - tempoBlink > 50 ){
+    if(millis() - tempoBlink > 100 ){
       tempoBlink = millis();
       ledBlink = !ledBlink;
       digitalWrite(pinLED1, ledBlink);
@@ -171,7 +123,6 @@ void loop() {
     }  
    funcao = 4; 
   }
-  
   
   inibidores();
   
@@ -308,7 +259,7 @@ void loop() {
     }
   }
  
- if(swdBotaoUp->state && swdBotaoDown->state){
+ if((swdBotaoUp->state && swdBotaoDown->state) || (!swdBotaoUp->state && !swdBotaoDown->state)){
    digitalWrite(pinAtuador1up, LOW);
    digitalWrite(pinAtuador1down, LOW);
    digitalWrite(pinAtuador2up, LOW);
