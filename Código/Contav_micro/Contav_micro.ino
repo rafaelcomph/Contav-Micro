@@ -12,8 +12,8 @@
 #define pinLED2 SCK
 #define pinLED3  A5
 
-#define pinBotaoUp A3
-#define pinBotaoDown A2
+#define pinBotaoUp A2
+#define pinBotaoDown A3
 #define pinBotaoFuncao A4
 
 #define pinInibidor1  12
@@ -67,26 +67,42 @@ boolean trava1up = false, trava1down = false;
 boolean trava2up = false, trava2down = false;
 boolean trava3up = false, trava3down = false;
 
-int velAtuador1[3] = {127, 0, 0};
-int velAtuador2[3] = {0, 127, 0};
-int velAtuador3[3] = {0, 0, 127};
+int velAtuador1[3] = {255, 0, 0};
+int velAtuador2[3] = {0, 255, 0};
+int velAtuador3[3] = {0, 0, 255};
 
-unsigned long tempoBotao = 0;
+unsigned long tempoBotao = 0, tempoAceleracao = 0;
 unsigned long tempoBlink = 0;
 boolean ledBlink = false;
 int funcao = 0;
 boolean auto_tilt = false;
 char c;
+int aceleracao = 0;
 
 void loop() {
-  
+  Serial.begin(9600);
   swdBotaoFuncao->refresh(pinBotaoFuncao);
   swdBotaoUp->refresh(pinBotaoUp);
   swdBotaoDown->refresh(pinBotaoDown);
   swdInibidor1->refresh(pinInibidor1);
   swdInibidor2->refresh(pinInibidor2);
   swdInibidor3->refresh(pinInibidor3);
+  
+  
+  if(!swdBotaoUp->state || !swdBotaoDown->state){
+    if(millis() - tempoAceleracao >2 && aceleracao < 100){
+      tempoAceleracao = millis();
+      aceleracao ++;
+    }
+  }
+  if(swdBotaoUp->state && swdBotaoDown->state){
+    if(millis() - tempoAceleracao >2 && aceleracao > 0){
+      tempoAceleracao = millis();
+      aceleracao --;
+    }
+  }
 
+  if(auto_tilt && !swdBotaoFuncao->state ) auto_tilt = false;
   if(!swdBotaoFuncao->state){    
     tempoBotao = millis();
     while(!swdBotaoFuncao->state){
@@ -97,7 +113,7 @@ void loop() {
     }  
     funcao++;
     if(funcao > 3)  funcao = 0;
-    if(millis()-tempoBotao > 2000) auto_tilt = !auto_tilt;
+    if(millis()-tempoBotao > 2000) auto_tilt = true;
   }
   
   if(millis()-tempoBotao > 3000) funcao = 0;
@@ -105,21 +121,21 @@ void loop() {
   if(!auto_tilt){
     switch (funcao){
       case 1:
-        digitalWrite(pinLED1, HIGH);
+        if(!trava1up && !trava1down)  digitalWrite(pinLED1, HIGH);
         digitalWrite(pinLED2, LOW);
         digitalWrite(pinLED3, LOW);
         break;
         
       case 2:
         digitalWrite(pinLED1, LOW);
-        digitalWrite(pinLED2, HIGH);
+        if(!trava2up && !trava2down)  digitalWrite(pinLED2, HIGH);
         digitalWrite(pinLED3, LOW);
         break;
         
       case 3:
         digitalWrite(pinLED1, LOW);
         digitalWrite(pinLED2, LOW);
-        digitalWrite(pinLED3, HIGH);
+        if(!trava3up && !trava3down)  digitalWrite(pinLED3, HIGH);
         break;
         
       case 0:
@@ -140,148 +156,6 @@ void loop() {
    funcao = 4; 
   }
   
-  inibidores();
-  
-  
-  if(!swdBotaoUp->state && swdBotaoDown->state){
-    tempoBotao = millis();
-    switch (funcao){
-      case 1:
-        if((trava1up && velAtuador1[0]) || (trava2up && velAtuador1[1]) || (trava3up && velAtuador1[2])){
-          atuador1fwd = 0;
-          atuador1bwd = 0;
-          atuador2fwd = 0;
-          atuador2bwd = 0;
-          atuador3fwd = 0;
-          atuador3bwd = 0;
-          funcao = 0;
-          break;
-        }
-        atuador1fwd = velAtuador1[0];
-        atuador1bwd = 0;
-        atuador2fwd = velAtuador1[1];
-        atuador2bwd = 0;
-        atuador3fwd = velAtuador1[2];
-        atuador2bwd = 0;
-        break;
-        
-      case 2:
-        if((trava1up && velAtuador2[0]) || (trava2up && velAtuador2[1]) || (trava3up && velAtuador2[2])){
-          atuador1fwd = 0;
-          atuador1bwd = 0;
-          atuador2fwd = 0;
-          atuador2bwd = 0;
-          atuador3fwd = 0;
-          atuador3bwd = 0;
-          funcao = 0;
-          break;
-        }
-        atuador1fwd = velAtuador2[0];
-        atuador1bwd = 0;
-        atuador2fwd = velAtuador2[1];
-        atuador2bwd = 0;
-        atuador3fwd = velAtuador2[2];
-        atuador2bwd = 0;
-        break;
-        
-      case 3:
-        if((trava1up && velAtuador3[0]) || (trava2up && velAtuador3[1]) || (trava3up && velAtuador3[2])){
-          atuador1fwd = 0;
-          atuador1bwd = 0;
-          atuador2fwd = 0;
-          atuador2bwd = 0;
-          atuador3fwd = 0;
-          atuador3bwd = 0;
-          funcao = 0;
-          break;
-        }
-        atuador1fwd = velAtuador3[0];
-        atuador1bwd = 0;
-        atuador2fwd = velAtuador3[1];
-        atuador2bwd = 0;
-        atuador3fwd = velAtuador3[2];
-        atuador2bwd = 0;
-        break;
-        
-      case 0:
-        funcao = 1;
-        break;
-    }
-  } 
-  
-  if(!swdBotaoDown->state && swdBotaoUp->state){
-    tempoBotao = millis();
-    switch (funcao){
-      case 1:
-        if((trava1down && velAtuador1[0]) || (trava2down && velAtuador1[1]) || (trava3down && velAtuador1[2])){
-          atuador1fwd = 0;
-          atuador1bwd = 0;
-          atuador2fwd = 0;
-          atuador2bwd = 0;
-          atuador3fwd = 0;
-          atuador3bwd = 0;
-          funcao = 0;
-          break;
-        }
-        atuador1fwd = 0;
-        atuador1bwd = velAtuador1[0];
-        atuador2fwd = 0;
-        atuador2bwd = velAtuador1[1];
-        atuador3fwd = 0;
-        atuador3bwd = velAtuador1[2];
-        break;
-        
-      case 2:
-        if((trava1down && velAtuador2[0]) || (trava2down && velAtuador2[1]) || (trava3down && velAtuador2[2])){
-          atuador1fwd = 0;
-          atuador1bwd = 0;
-          atuador2fwd = 0;
-          atuador2bwd = 0;
-          atuador3fwd = 0;
-          atuador3bwd = 0;
-          funcao = 0;
-          break;
-        }
-        atuador1fwd = 0;
-        atuador1bwd = velAtuador2[0];
-        atuador2fwd = 0;
-        atuador2bwd = velAtuador2[1];
-        atuador3fwd = 0;
-        atuador3bwd = velAtuador2[2];
-        break;
-        
-      case 3:
-        if((trava1down && velAtuador3[0]) || (trava2down && velAtuador3[1]) || (trava3down && velAtuador3[2])){
-          atuador1fwd = 0;
-          atuador1bwd = 0;
-          atuador2fwd = 0;
-          atuador2bwd = 0;
-          atuador3fwd = 0;
-          atuador3bwd = 0;
-          funcao = 0;
-          break;
-        }
-        atuador1fwd = 0;
-        atuador1bwd = velAtuador3[0];
-        atuador2fwd = 0;
-        atuador2bwd = velAtuador3[1];
-        atuador3fwd = 0;
-        atuador3bwd = velAtuador3[2];
-        break;
-        
-      case 0:
-        funcao = 1;
-        break;
-    }
-  }
- 
- if((swdBotaoUp->state && swdBotaoDown->state) || (!swdBotaoUp->state && !swdBotaoDown->state)){
-   atuador1fwd = 0;
-   atuador1bwd = 0;
-   atuador2fwd = 0;
-   atuador2bwd = 0;
-   atuador3fwd = 0;
-   atuador3bwd = 0;
- }
-  
+  Inibidores();
+  Atuadores();
 }

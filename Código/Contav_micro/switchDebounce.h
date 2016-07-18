@@ -5,6 +5,7 @@ class switchDebounce{
           boolean debounce(boolean reading);
           unsigned long lastDebounceTime = 0;
           boolean travaDebounce = LOW;
+          
           int buttonState = HIGH;             
           int lastButtonState = HIGH;    
           

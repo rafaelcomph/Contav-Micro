@@ -1,4 +1,5 @@
-void inibidores(){ 
+void Inibidores(){ 
+  
   if(swdBotaoUp->state && !swdInibidor1->state && swdBotaoDown->state && !trava1up && !trava1down){
     trava1up = HIGH;
     trava1down = HIGH;
