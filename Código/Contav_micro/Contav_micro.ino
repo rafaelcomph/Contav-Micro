@@ -1,5 +1,8 @@
-#include <arduino.h>
+#include <Arduino.h>
 #include "switchDebounce.h"
+
+void Inibidores();
+void Atuadores(double);
 
 #define atuador1fwd  OCR1B
 #define atuador1bwd  OCR1A
@@ -10,7 +13,7 @@
 
 #define pinLED1 MISO
 #define pinLED2 SCK
-#define pinLED3  A5
+#define pinLED3  MOSI
 
 #define pinBotaoUp A2
 #define pinBotaoDown A3
@@ -24,7 +27,7 @@
 #define pinAtuador1bwd  9
 #define pinAtuador2fwd  6
 #define pinAtuador2bwd  5
-#define pinAtuador3fwd  13 
+#define pinAtuador3fwd  13
 #define pinAtuador3bwd  11
 
 switchDebounce *swdBotaoUp, *swdBotaoDown,  *swdBotaoFuncao;
@@ -34,13 +37,13 @@ void setup() {
   TCCR1A = 0xA9;
   TCCR3A = 0xA9;
   TCCR4A = 0x53;
-  
+
   TCCR1B = 1;
-  TCCR3B = 1; 
+  TCCR3B = 1;
   TCCR4B = 1;
-  
+
   TCCR4C = 0xAB;
-   
+
   pinMode(pinLED1, OUTPUT);
   pinMode(pinLED2, OUTPUT);
   pinMode(pinLED3, OUTPUT);
@@ -50,24 +53,24 @@ void setup() {
   pinMode(pinAtuador2bwd, OUTPUT);
   pinMode(pinAtuador3fwd, OUTPUT);
   pinMode(pinAtuador3bwd, OUTPUT);
-  
+
   swdBotaoUp = new switchDebounce(pinBotaoUp);
   swdBotaoDown = new switchDebounce(pinBotaoDown);
   swdBotaoFuncao = new switchDebounce(pinBotaoFuncao);
   swdInibidor1 = new switchDebounce(pinInibidor1);
   swdInibidor2 = new switchDebounce(pinInibidor2);
   swdInibidor3 = new switchDebounce(pinInibidor3);
-  
+
   digitalWrite(pinLED1, LOW);
   digitalWrite(pinLED2, LOW);
   digitalWrite(pinLED3, LOW);
-  
+
 }
 boolean trava1up = false, trava1down = false;
 boolean trava2up = false, trava2down = false;
 boolean trava3up = false, trava3down = false;
 
-int velAtuador1[3] = {255, 0, 0};
+int velAtuador1[3] = {-255, -158, 50};
 int velAtuador2[3] = {0, 255, 0};
 int velAtuador3[3] = {0, 0, 255};
 
@@ -78,6 +81,8 @@ int funcao = 0;
 boolean auto_tilt = false;
 char c;
 int aceleracao = 0;
+double stdIntensity = 80;
+double lastIntensity = 0;
 
 void loop() {
   Serial.begin(9600);
@@ -87,57 +92,57 @@ void loop() {
   swdInibidor1->refresh(pinInibidor1);
   swdInibidor2->refresh(pinInibidor2);
   swdInibidor3->refresh(pinInibidor3);
-  
-  
-  if(!swdBotaoUp->state || !swdBotaoDown->state){
-    if(millis() - tempoAceleracao >2 && aceleracao < 100){
+
+
+  if (!swdBotaoUp->state || !swdBotaoDown->state) {
+    if (millis() - tempoAceleracao > 2 && aceleracao < 100) {
       tempoAceleracao = millis();
       aceleracao ++;
     }
   }
-  if(swdBotaoUp->state && swdBotaoDown->state){
-    if(millis() - tempoAceleracao >2 && aceleracao > 0){
+  if (swdBotaoUp->state && swdBotaoDown->state) {
+    if (millis() - tempoAceleracao > 2 && aceleracao > 0) {
       tempoAceleracao = millis();
       aceleracao --;
     }
   }
 
-  if(auto_tilt && !swdBotaoFuncao->state ) auto_tilt = false;
-  if(!swdBotaoFuncao->state){    
+  if (auto_tilt && !swdBotaoFuncao->state ) auto_tilt = false;
+  if (!swdBotaoFuncao->state) {
     tempoBotao = millis();
-    while(!swdBotaoFuncao->state){
+    while (!swdBotaoFuncao->state) {
       swdBotaoFuncao->refresh(pinBotaoFuncao);
       digitalWrite(pinLED1, LOW);
       digitalWrite(pinLED2, LOW);
       digitalWrite(pinLED3, LOW);
-    }  
+    }
     funcao++;
-    if(funcao > 3)  funcao = 0;
-    if(millis()-tempoBotao > 2000) auto_tilt = true;
+    if (funcao > 3)  funcao = 0;
+    if (millis() - tempoBotao > 2000) auto_tilt = true;
   }
-  
-  if(millis()-tempoBotao > 3000) funcao = 0;
-  
-  if(!auto_tilt){
-    switch (funcao){
+
+  if (millis() - tempoBotao > 3000) funcao = 0;
+
+  if (!auto_tilt) {
+    switch (funcao) {
       case 1:
-        if(!trava1up && !trava1down)  digitalWrite(pinLED1, HIGH);
+        if (!trava1up && !trava1down)  digitalWrite(pinLED1, HIGH);
         digitalWrite(pinLED2, LOW);
         digitalWrite(pinLED3, LOW);
         break;
-        
+
       case 2:
         digitalWrite(pinLED1, LOW);
-        if(!trava2up && !trava2down)  digitalWrite(pinLED2, HIGH);
+        if (!trava2up && !trava2down)  digitalWrite(pinLED2, HIGH);
         digitalWrite(pinLED3, LOW);
         break;
-        
+
       case 3:
         digitalWrite(pinLED1, LOW);
         digitalWrite(pinLED2, LOW);
-        if(!trava3up && !trava3down)  digitalWrite(pinLED3, HIGH);
+        if (!trava3up && !trava3down)  digitalWrite(pinLED3, HIGH);
         break;
-        
+
       case 0:
         digitalWrite(pinLED1, LOW);
         digitalWrite(pinLED2, LOW);
@@ -145,17 +150,32 @@ void loop() {
         break;
     }
   }
-  else{
-    if(millis() - tempoBlink > 100 ){
+  else {
+    if (millis() - tempoBlink > 100 ) {
       tempoBlink = millis();
       ledBlink = !ledBlink;
       digitalWrite(pinLED1, ledBlink);
       digitalWrite(pinLED2, LOW);
       digitalWrite(pinLED3, LOW);
-    }  
-   funcao = 4; 
+    }
+    funcao = 4;
   }
-  
+
   Inibidores();
-  Atuadores();
+  Serial.println((trava1up && velAtuador1[0]));
+  
+  if (!swdBotaoUp->state && swdBotaoDown->state) {
+    if(funcao == 0)   funcao = 1;
+    tempoBotao = millis();
+    Atuadores(stdIntensity);
+  }
+  else if (swdBotaoUp->state && !swdBotaoDown->state) {
+    if(funcao == 0)   funcao = 1;
+    tempoBotao = millis();
+    Atuadores(stdIntensity * (-1));
+  }
+  else
+    Atuadores(0);
+
+  
 }

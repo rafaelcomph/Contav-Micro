@@ -1,5 +1,5 @@
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "switchDebounce.h"
 
 
