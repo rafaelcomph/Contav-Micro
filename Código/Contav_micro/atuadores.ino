@@ -7,133 +7,153 @@ void Atuadores(double intensity) {
   switch (funcao) {
 
     case 1:
-      if (((trava1up && velAtuador1[0]) || (trava2up && velAtuador1[1]) || (trava3up && velAtuador1[2])) && intensity >=0)  {
-        atuador1fwd = 0;
-        atuador1bwd = 0;
-        atuador2fwd = 0;
-        atuador2bwd = 0;
-        atuador3fwd = 0;
-        atuador3bwd = 0;
-        digitalWrite(pinLED1, LOW);
-        break;
-      }
+
       if (((velAtuador1[0] > 0 && lastIntensity > 0) || (velAtuador1[0] < 0 && lastIntensity < 0))) {
-        atuador1fwd = velAtuador1[0] * aceleracao * lastIntensity / 10000;
-        atuador1bwd = 0;
-        Serial.print("1: FRENTE");
+        paraFrente(&atuador1fwd, &atuador1bwd, velAtuador1[0]);
       }
       else if (((velAtuador1[0] < 0 && lastIntensity > 0) || (velAtuador1[0] > 0 && lastIntensity < 0))) {
-        atuador1fwd = 0;
-        atuador1bwd = abs(velAtuador1[0] * aceleracao * lastIntensity / 10000);
-        Serial.print("1: TRAS");
+        paraTras(&atuador1fwd, &atuador1bwd, velAtuador1[0]);
       }
       if (((velAtuador1[1] > 0 && lastIntensity > 0) || (velAtuador1[1] < 0 && lastIntensity < 0))) {
-        atuador2fwd = velAtuador1[1] * aceleracao * lastIntensity / 10000;
-        atuador2bwd = 0;
-        Serial.print("/ 2: FRENTE");
+        paraFrente(&atuador2fwd, &atuador2bwd, velAtuador1[1]);
       }
       else if (((velAtuador1[1] < 0 && lastIntensity > 0) || (velAtuador1[1] > 0 && lastIntensity < 0))) {
-        atuador2fwd = 0;
-        atuador2bwd = abs(velAtuador1[1] * aceleracao * lastIntensity / 10000);
-
-        Serial.print("/ 2: TRAS");
+        paraTras(&atuador2fwd, &atuador2bwd, velAtuador1[1]);
       }
       if ((velAtuador1[2] > 0 && lastIntensity > 0) || (velAtuador1[2] < 0 && lastIntensity < 0)) {
-        atuador3fwd = velAtuador1[2] * aceleracao * lastIntensity / 10000;
-        atuador3bwd = 0;
-
-        Serial.println("/ 3: FRENTE");
+        paraFrente(&atuador3fwd, &atuador3bwd, velAtuador1[2]);
       }
       else if ((velAtuador1[2] < 0 && lastIntensity > 0) || (velAtuador1[2] > 0 && lastIntensity < 0)) {
-        atuador3fwd = 0;
-        atuador3bwd = abs(velAtuador1[2]) * aceleracao * lastIntensity / 10000;
-
-        Serial.println("/ 3: TRAS");
+        paraTras(&atuador3fwd, &atuador3bwd, velAtuador1[2]);
       }
       break;
 
     case 2:
-      if ((trava1up && velAtuador2[0]) || (trava2up && velAtuador2[1]) || (trava3up && velAtuador2[2])) {
-        atuador1fwd = 0;
-        atuador1bwd = 0;
-        atuador2fwd = 0;
-        atuador2bwd = 0;
-        atuador3fwd = 0;
-        atuador3bwd = 0;
-        digitalWrite(pinLED2, LOW);
-        break;
-      }
+      
       if ((velAtuador2[0] > 0 && lastIntensity > 0) || (velAtuador2[0] < 0 && lastIntensity < 0)) {
-        atuador1fwd = velAtuador2[0] * aceleracao * lastIntensity / 10000;
-        atuador1bwd = 0;
+        paraFrente(&atuador1fwd, &atuador1bwd, velAtuador2[0]); 
       }
       else if ((velAtuador2[0] < 0 && lastIntensity > 0) || (velAtuador2[0] > 0 && lastIntensity < 0)) {
-        atuador1fwd = 0;
-        atuador1bwd = abs(velAtuador2[0] * aceleracao * lastIntensity / 10000);
+        paraTras(&atuador1fwd, &atuador1bwd, velAtuador2[0]);
       }
       if ((velAtuador2[1] > 0 && lastIntensity > 0) || (velAtuador2[1] < 0 && lastIntensity < 0)) {
-        atuador2fwd = velAtuador2[1] * aceleracao * lastIntensity / 10000;
-        atuador2bwd = 0;
+        paraFrente(&atuador2fwd, &atuador2bwd, velAtuador2[1]); 
       }
       else if ((velAtuador2[1] < 0 && lastIntensity > 0) || (velAtuador2[1] > 0 && lastIntensity < 0)) {
-        atuador2fwd = 0;
-        atuador2bwd = abs(velAtuador2[1] * aceleracao * lastIntensity / 10000);
+        paraTras(&atuador2fwd, &atuador2bwd, velAtuador2[1]);
       }
       if ((velAtuador2[2] > 0 && lastIntensity > 0) || (velAtuador2[2] < 0 && lastIntensity < 0)) {
-        atuador3fwd = velAtuador2[2] * aceleracao * lastIntensity / 10000;
-        atuador3bwd = 0;
+        paraFrente(&atuador3fwd, &atuador3bwd, velAtuador2[2]); 
       }
       else if ((velAtuador2[2] < 0 && lastIntensity > 0) || (velAtuador2[2] > 0 && lastIntensity < 0)) {
-        atuador3fwd = 0;
-        atuador3bwd = abs(velAtuador2[2]) * aceleracao * lastIntensity / 10000;
+        paraTras(&atuador3fwd, &atuador3bwd, velAtuador2[2]);
       }
       break;
 
     case 3:
-      if ((trava1up && velAtuador3[0]) || (trava2up && velAtuador3[1]) || (trava3up && velAtuador3[2])) {
-        atuador1fwd = 0;
-        atuador1bwd = 0;
-        atuador2fwd = 0;
-        atuador2bwd = 0;
-        atuador3fwd = 0;
-        atuador3bwd = 0;
-        digitalWrite(pinLED3, LOW);
-        break;
-      }
+      
       if ((velAtuador3[0] > 0 && lastIntensity > 0) || (velAtuador3[0] < 0 && lastIntensity < 0)) {
-        atuador1fwd = velAtuador3[0] * aceleracao * lastIntensity / 10000;
-        atuador1bwd = 0;
+        paraFrente(&atuador1fwd, &atuador1bwd, velAtuador3[0]); 
       }
       else if ((velAtuador3[0] < 0 && lastIntensity > 0) || (velAtuador3[0] > 0 && lastIntensity < 0)) {
-        atuador1fwd = 0;
-        atuador1bwd = abs(velAtuador3[0] * aceleracao * lastIntensity / 10000);
+        paraTras(&atuador1fwd, &atuador1bwd, velAtuador3[0]);
       }
       if ((velAtuador3[1] > 0 && lastIntensity > 0) || (velAtuador3[1] < 0 && lastIntensity < 0)) {
-        atuador2fwd = velAtuador3[1] * aceleracao * lastIntensity / 10000;
-        atuador2bwd = 0;
+        paraFrente(&atuador2fwd, &atuador2bwd, velAtuador3[1]); 
       }
       else if ((velAtuador3[1] < 0 && lastIntensity > 0) || (velAtuador3[1] > 0 && lastIntensity < 0)) {
-        atuador2fwd = 0;
-        atuador2bwd = abs(velAtuador3[1] * aceleracao * lastIntensity / 10000);
+        paraTras(&atuador2fwd, &atuador2bwd, velAtuador3[1]);
       }
       if ((velAtuador3[2] > 0 && lastIntensity > 0) || (velAtuador3[2] < 0 && lastIntensity < 0)) {
-        atuador3fwd = velAtuador3[2] * aceleracao * lastIntensity / 10000;
-        atuador3bwd = 0;
+        paraFrente(&atuador3fwd, &atuador3bwd, velAtuador3[2]); 
       }
       else if ((velAtuador3[2] < 0 && lastIntensity > 0) || (velAtuador3[2] > 0 && lastIntensity < 0)) {
-        atuador3fwd = 0;
-        atuador3bwd = abs(velAtuador3[2]) * aceleracao * lastIntensity / 10000;
+        paraTras(&atuador3fwd, &atuador3bwd, velAtuador3[2]);
       }
       break;
 
     case 0:
-      atuador1fwd = 0;
-      atuador1bwd = 0;
-      atuador2fwd = 0;
-      atuador2bwd = 0;
-      atuador3fwd = 0;
-      atuador3bwd = 0;
+      parou();
       break;
   }
 
 }
+
+void parou() {
+  atuador1fwd = 0;
+  atuador1bwd = 0;
+  atuador2fwd = 0;
+  atuador2bwd = 0;
+  atuador3fwd = 0;
+  atuador3bwd = 0;
+
+}
+
+void parou(int led) {
+  atuador1fwd = 0;
+  atuador1bwd = 0;
+  atuador2fwd = 0;
+  atuador2bwd = 0;
+  atuador3fwd = 0;
+  atuador3bwd = 0;
+  digitalWrite(led, LOW);
+
+}
+
+
+void paraFrente(volatile uint16_t  *pinFwd, volatile uint16_t  *pinBwd, int velocidade){
+  *pinFwd = byte(velocidade * aceleracao * lastIntensity / 10000);
+  *pinBwd = 0;
+}
+
+void paraTras(volatile uint16_t  *pinFwd, volatile uint16_t  *pinBwd, int velocidade){
+  *pinFwd = 0;
+  *pinBwd = byte(abs(velocidade * aceleracao * lastIntensity / 10000));;
+}
+
+void paraFrente(volatile uint8_t  *pinFwd, volatile uint16_t  *pinBwd, int velocidade){
+  *pinFwd = byte(velocidade * aceleracao * lastIntensity / 10000);
+  *pinBwd = 0;
+}
+
+void paraTras(volatile uint8_t  *pinFwd, volatile uint16_t  *pinBwd, int velocidade){
+  *pinFwd = 0;
+  *pinBwd = byte(abs(velocidade * aceleracao * lastIntensity / 10000));;
+}
+
+/*
+
+void paraFrente(int atuador, int velocidade){
+  switch(atuador){ 
+    case 1:
+        atuador1fwd = velocidade * aceleracao * lastIntensity / 10000;
+        atuador1bwd = 0;
+        break;
+    case 2:
+        atuador2fwd = velocidade * aceleracao * lastIntensity / 10000;
+        atuador2bwd = 0;
+        break;
+    case 3:
+        atuador3fwd = velocidade * aceleracao * lastIntensity / 10000;
+        atuador3bwd = 0;
+        break;
+  }
+}
+
+void paraTras(int atuador, int velocidade){
+  switch(atuador){ 
+    case 1:
+        atuador1fwd = 0;
+        atuador1bwd = abs(velocidade * aceleracao * lastIntensity / 10000);
+        break;
+    case 2:
+        atuador2fwd = 0;
+        atuador2bwd = abs(velocidade * aceleracao * lastIntensity / 10000);
+        break;
+    case 3:
+        atuador3fwd = 0;
+        atuador3bwd = abs(velocidade * aceleracao * lastIntensity / 10000);
+        break;
+  }
+}
+*/

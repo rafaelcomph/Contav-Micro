@@ -70,8 +70,8 @@ boolean trava1up = false, trava1down = false;
 boolean trava2up = false, trava2down = false;
 boolean trava3up = false, trava3down = false;
 
-int velAtuador1[3] = {-255, -158, 50};
-int velAtuador2[3] = {0, 255, 0};
+int velAtuador1[3] = {200, -158, 50};
+int velAtuador2[3] = {0, 255, -50};
 int velAtuador3[3] = {0, 0, 255};
 
 unsigned long tempoBotao = 0, tempoAceleracao = 0;
@@ -123,6 +123,7 @@ void loop() {
 
   if (millis() - tempoBotao > 3000) funcao = 0;
 
+/*
   if (!auto_tilt) {
     switch (funcao) {
       case 1:
@@ -160,9 +161,9 @@ void loop() {
     }
     funcao = 4;
   }
+*/
 
   Inibidores();
-  Serial.println((trava1up && velAtuador1[0]));
   
   if (!swdBotaoUp->state && swdBotaoDown->state) {
     if(funcao == 0)   funcao = 1;
